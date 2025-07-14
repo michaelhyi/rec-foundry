@@ -49,4 +49,12 @@ public class UserRepository {
 
         return Optional.of(recFoundryUsers.get(0));
     }
+
+    public Optional<RecFoundryUser> getUserById(String id) {
+        Optional<RecFoundryUser> result = client.ontology()
+                .objects()
+                .RecFoundryUser()
+                .fetch(id);
+        return result;
+    }
 }
