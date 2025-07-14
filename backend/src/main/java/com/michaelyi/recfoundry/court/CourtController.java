@@ -1,6 +1,7 @@
 package com.michaelyi.recfoundry.court;
 
 import com.michaelyi.recfoundry.player.Player;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 public class CourtController {
     @Autowired
@@ -42,6 +44,8 @@ public class CourtController {
 
     @PostMapping("/api/v1/courts/next-team")
     public ResponseEntity<Void> nextTeam(@RequestBody CourtPopTeamRequest req) {
+        log.info("Processing next team request for court ID: {}, team ID: {}", req.getCourtId(), req.getTeamId());
+
         try {
             courtService.popTeam(req);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

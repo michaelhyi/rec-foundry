@@ -64,7 +64,7 @@ public class CourtRepository {
             String teamOneJson = redisTemplate.opsForValue()
                     .get("court:" + court.getId() + ":teamOne");
             String teamTwoJson = redisTemplate.opsForValue()
-                    .get("court:" + court.getId() + ":teamTwe");
+                    .get("court:" + court.getId() + ":teamTwo");
 
             log.debug("Fetching team data for court {}: teamOneJson={}, teamTwoJson={}",
                       court.getId(), teamOneJson, teamTwoJson);
@@ -150,7 +150,12 @@ public class CourtRepository {
     }
 
     public void nextTeam(String courtId, int teamId) throws JsonProcessingException {
+        log.info("Processing next team for court ID: {}, team ID: {}", courtId, teamId);
+
         List<String> nextTeamPlayerIds = redisTemplate.opsForList().leftPop("court:" + courtId + ":queue", 5);
+        log.debug("Fetched next team player IDs for court {}: {}", courtId, nextTeamPlayerIds);
+        log.debug("Fetched key={}, value={}", "court:" + courtId + ":queue", nextTeamPlayerIds);
+
         List<Player> nextTeam = new ArrayList<>();
 
         for (String playerId : nextTeamPlayerIds) {

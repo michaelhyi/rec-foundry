@@ -3,12 +3,18 @@
 import Container from "@/app/components/Container";
 import { getGymById } from "@/app/http/gyms";
 import { Gym } from "@/app/models/Gym";
-import { useEffect, useState } from "react";
+import { IoIosRefresh } from "react-icons/io";
+import { useCallback, useEffect, useState } from "react";
+import { getNextTeam } from "@/app/http/courts";
 
 export default function GetGym({
     params
 }: { params: Promise<{ id: string }> }) {
     const [gym, setGym] = useState<Gym | null>(null);
+
+    const handleSwapTeam = useCallback(async (courtId: string, teamId: number) => {
+        await getNextTeam(courtId, teamId);
+    }, []);
 
     useEffect(() => {
         (async () => {
@@ -38,9 +44,21 @@ export default function GetGym({
                             key={court.id}
                             className="border border-gray-200 rounded-lg shadow-sm p-4"
                         >
-                            <h2 className="text-lg font-semibold mb-3">
-                                Court #{court.courtNumber}
-                            </h2>
+                            <div className="flex items-center mb-3">
+                                <h2 className="text-lg font-semibold">
+                                    Court #{court.courtNumber}
+                                </h2>
+                                <div className="ml-auto flex items-center space-x-2">
+                                    <button onClick={() => handleSwapTeam(court.id, 1)} className="flex items-center space-x-2 px-4 text-xs font-medium  bg-black text-white p-2 rounded-lg hover:opacity-50 cursor-pointer duration-200 transition">
+                                        <IoIosRefresh />
+                                        <p>Swap Team One</p>
+                                    </button>
+                                    <button onClick={() => handleSwapTeam(court.id, 2)} className="flex items-center space-x-2 px-4 text-xs font-medium  bg-white text-black border border-gray-300 p-2 rounded-lg hover:opacity-50 cursor-pointer duration-200 transition">
+                                        <IoIosRefresh />
+                                        <p>Swap Team Two</p>
+                                    </button>
+                                </div>
+                            </div>
 
                             <a href={`/courts/${court.id}/queue`} className="text-sm text-gray-500 mb-3 underline hover:opacity-75">
                                 Queue: {court.queueSize ?? 0} player{(court.queueSize ?? 0) !== 1 ? "s" : ""}
