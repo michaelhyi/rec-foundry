@@ -3,8 +3,10 @@ package com.michaelyi.recfoundry.court;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.michaelyi.recfoundry.player.Player;
+import com.michaelyi.recfoundry.player.PlayerRepository;
 import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.FoundryClient;
 import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.objects.RecFoundryCourt;
+import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.objects.RecFoundryPlayer;
 import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.objectsets.RecFoundryCourtObjectSet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -25,6 +28,9 @@ public class CourtRepository {
 
     @Autowired
     private ObjectMapper jsonMapper;
+
+    @Autowired
+    private PlayerRepository playerRepository;
 
     public List<Court> getAllCourtsByGymId(String gymId) throws JsonProcessingException {
         log.info("Fetching all courts for gym with ID: {}", gymId);
@@ -73,5 +79,40 @@ public class CourtRepository {
         }
 
         return courts;
+    }
+
+    public void queuePlayer(String courtId, String playerId) {
+        redisTemplate.opsForList().rightPush("court:" + courtId + ":queue", playerId);
+    }
+
+    public List<Player> getQueue(String courtId) {
+        List<Player> queue = new ArrayList<>();
+        List<String> playerIds = redisTemplate.opsForList().range("court:" + courtId + ":queue", 0, -1);
+        log.debug("Fetched player IDs from queue for court {}: {}", courtId, playerIds);
+
+        for (String playerId : playerIds) {
+            Optional<RecFoundryPlayer> player = playerRepository.getPlayerById(playerId);
+            if (player.isEmpty()) {
+                continue;
+            }
+            log.debug("Found player with ID {} in queue for court {}", playerId, courtId);
+
+            Player p = Player.builder()
+                    .id(player.get().id().get())
+                    .userId(player.get().userId().get())
+                    .height(player.get().height().get())
+                    .weight(player.get().weight().get())
+                    .dateOfBirth(player.get().dateOfBirth().get())
+                    .yearsOfExperience(player.get().yearsOfExperience().get())
+                    .bio(player.get().bio().get())
+                    .position(player.get().position().get())
+                    .createdAt(player.get().createdAt().get())
+                    .updatedAt(player.get().updatedAt().get())
+                    .build();
+            queue.add(p);
+        }
+
+        log.info("Returning queue for court {}: {}", courtId, queue);
+        return queue;
     }
 }

@@ -31,6 +31,14 @@ public class PlayerRepository {
                         .build());
     }
 
+    public Optional<RecFoundryPlayer> getPlayerById(String id) {
+        Optional<RecFoundryPlayer> result = client.ontology()
+                .objects()
+                .RecFoundryPlayer()
+                .fetch(id);
+        return result;
+    }
+
     public Optional<RecFoundryPlayer> getPlayerByUserId(String userId) {
         Optional<RecFoundryPlayer> result = client.ontology()
                 .objects()
