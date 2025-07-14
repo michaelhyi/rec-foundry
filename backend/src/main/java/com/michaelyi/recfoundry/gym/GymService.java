@@ -1,9 +1,10 @@
 package com.michaelyi.recfoundry.gym;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.michaelyi.recfoundry.court.Court;
 import com.michaelyi.recfoundry.court.CourtRepository;
-import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.objects.RecFoundryCourt;
 import com.palantirfoundry.usw17.michaelyi.rec_foundry_sdk.objects.RecFoundryGym;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class GymService {
     @Autowired
@@ -20,7 +22,7 @@ public class GymService {
     @Autowired
     private CourtRepository courtRepository;
 
-    public Gym getGymById(String id) {
+    public Gym getGymById(String id) throws JsonProcessingException {
         Optional<RecFoundryGym> recFoundryGym = gymRepository.getGymById(id);
 
         if (recFoundryGym.isEmpty()) {
@@ -28,19 +30,7 @@ public class GymService {
         }
 
         RecFoundryGym gym = recFoundryGym.get();
-        List<RecFoundryCourt> recFoundryCourts = courtRepository.getAllCourtsByGymId(gym.id().get());
-        List<Court> courts = new ArrayList<>();
-
-        for (RecFoundryCourt c : recFoundryCourts) {
-            Court court = Court.builder()
-                    .id(c.id().get())
-                    .gymId(c.gymId().get())
-                    .courtNumber(c.courtNumber().get())
-                    .createdAt(c.createdAt().get())
-                    .updatedAt(c.updatedAt().get())
-                    .build();
-            courts.add(court);
-        }
+        List<Court> courts = courtRepository.getAllCourtsByGymId(gym.id().get());
 
         return Gym.builder()
                 .id(gym.id().get())
