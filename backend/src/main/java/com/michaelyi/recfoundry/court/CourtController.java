@@ -17,6 +17,9 @@ public class CourtController {
     @Autowired
     private CourtRepository courtRepository;
 
+    @Autowired
+    private CourtService courtService;
+
     @PostMapping("/api/v1/courts/queue")
     public ResponseEntity<Void> joinQueue(@RequestBody CourtQueueRequest req) {
         try {
@@ -32,6 +35,16 @@ public class CourtController {
         try {
             List<Player> queue = courtRepository.getQueue(id);
             return new ResponseEntity<>(queue, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/api/v1/courts/next-team")
+    public ResponseEntity<Void> nextTeam(@RequestBody CourtPopTeamRequest req) {
+        try {
+            courtService.popTeam(req);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

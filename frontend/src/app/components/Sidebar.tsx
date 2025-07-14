@@ -15,7 +15,7 @@ export default function Sidebar({active = "profile"}) {
     }, [router]);
 
     return (
-        <div className="p-4 h-screen border-r-1 border-gray-200 w-1/5">
+        <div className="p-4 border-r-1 border-gray-200 w-1/5">
             <h1 className="font-bold text-2xl">Rec Foundry</h1>
             <div className="mt-6 flex flex-col space-y-2">
                 <Link className={`flex items-center space-x-2 text-gray-500 px-2 py-1 rounded-lg outline-none ${active === 'profile' ? 'bg-gray-100' : ''} hover:opacity-50 duration-200`} href="/profile">

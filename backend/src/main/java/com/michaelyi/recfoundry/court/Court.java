@@ -17,4 +17,6 @@ public class Court {
 
     private List<Player> teamOne;
     private List<Player> teamTwo;
+
+    private Long queueSize;
 }

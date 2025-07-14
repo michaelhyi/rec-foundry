@@ -1,0 +1,93 @@
+"use client";
+
+import Container from "@/app/components/Container";
+import { getGymById } from "@/app/http/gyms";
+import { Gym } from "@/app/models/Gym";
+import { useEffect, useState } from "react";
+
+export default function GetGym({
+    params
+}: { params: Promise<{ id: string }> }) {
+    const [gym, setGym] = useState<Gym | null>(null);
+
+    useEffect(() => {
+        (async () => {
+            const { id } = await params;
+            const data = await getGymById(id);
+            setGym(data);
+        })();
+    }, [params]);
+
+    if (!gym) {
+        return <Container active="gyms">
+            <div className="p-6">
+                <h1 className="text-2xl font-bold mb-1">Loading...</h1>
+            </div>
+        </Container>;
+    }
+
+    return (
+        <Container active="gyms">
+            <div className="p-6">
+                <h1 className="text-2xl font-bold mb-1">{gym.name}</h1>
+                <p className="text-gray-600 mb-4">{gym.address}</p>
+
+                <div className="space-y-6">
+                    {gym.courts && gym.courts.map((court) => (
+                        <div
+                            key={court.id}
+                            className="border border-gray-200 rounded-lg shadow-sm p-4"
+                        >
+                            <h2 className="text-lg font-semibold mb-3">
+                                Court #{court.courtNumber}
+                            </h2>
+
+                            <a href={`/courts/${court.id}/queue`} className="text-sm text-gray-500 mb-3 underline hover:opacity-75">
+                                Queue: {court.queueSize ?? 0} player{(court.queueSize ?? 0) !== 1 ? "s" : ""}
+                            </a>
+
+                            <div className="mt-3 grid grid-cols-2 gap-6">
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-700 mb-1">
+                                        Team One
+                                    </h3>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {[...Array(5)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="h-16 flex items-center justify-center text-xs text-center border border-gray-300 rounded bg-gray-50"
+                                            >
+                                                {court.teamOne[i]
+                                                    ? `${court.teamOne[i].firstName} ${court.teamOne[i].lastName}`
+                                                    : "-"}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-sm font-medium text-gray-700 mb-1">
+                                        Team Two
+                                    </h3>
+                                    <div className="grid grid-cols-5 gap-2">
+                                        {[...Array(5)].map((_, i) => (
+                                            <div
+                                                key={i}
+                                                className="h-16 flex items-center justify-center text-xs text-center border border-gray-300 rounded bg-gray-50"
+                                            >
+                                                {court.teamTwo[i]
+                                                    ? `${court.teamTwo[i].firstName} ${court.teamTwo[i].lastName}`
+                                                    : "-"}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </Container>
+    );
+
+}
