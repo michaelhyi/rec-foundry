@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public class GymService {
 
         RecFoundryGym gym = recFoundryGym.get();
         List<Court> courts = courtRepository.getAllCourtsByGymId(gym.id().get());
+        courts.sort(Comparator.comparing(Court::getCourtNumber));
 
         return Gym.builder()
                 .id(gym.id().get())
