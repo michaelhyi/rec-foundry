@@ -1,20 +1,32 @@
 "use client";
 
 import Container from "@/app/components/Container";
-import { getGymById } from "@/app/http/gyms";
+import { getGymById, joinQueueWithStrategy } from "@/app/http/gyms";
 import { Gym } from "@/app/models/Gym";
 import { IoIosRefresh } from "react-icons/io";
 import { useCallback, useEffect, useState } from "react";
 import { getNextTeam } from "@/app/http/courts";
+import { FaUserPlus } from "react-icons/fa";
+import { getPlayer } from "@/app/http/player";
 
 export default function GetGym({
     params
 }: { params: Promise<{ id: string }> }) {
     const [gym, setGym] = useState<Gym | null>(null);
+    const [strategy, setStrategy] = useState("SHORTEST_QUEUE");
 
     const handleSwapTeam = useCallback(async (courtId: string, teamId: number) => {
         await getNextTeam(courtId, teamId);
     }, []);
+
+    const handleJoinQueue = useCallback(async () => {
+        const { id: gymId } = await params;
+        const userId = localStorage.getItem("userId");
+        const playerId = (await getPlayer(userId!)).id;
+
+        const { courtNumber } = await joinQueueWithStrategy(gymId, playerId, strategy);
+        console.log(`Joined queue for court number: ${courtNumber}`);
+    }, [params, strategy]);
 
     useEffect(() => {
         (async () => {
@@ -37,6 +49,24 @@ export default function GetGym({
             <div className="p-6">
                 <h1 className="text-2xl font-bold mb-1">{gym.name}</h1>
                 <p className="text-gray-600 mb-4">{gym.address}</p>
+
+                <div className="flex items-center space-x-4 mb-6">
+                    <select
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-sm"
+                        value={strategy}
+                        onChange={(e) => setStrategy(e.target.value)}
+                    >
+                        <option value="SHORTEST_QUEUE">Shortest Queue</option>
+                        <option value="BALANCED_QUEUE">Most Balanced Skill</option>
+                    </select>
+                    <button
+                        onClick={() => handleJoinQueue()}
+                        className="flex items-center space-x-2 bg-black text-white text-sm font-medium px-4 py-2 rounded-lg hover:opacity-75 transition cursor-pointer"
+                    >
+                        <FaUserPlus />
+                        <p>Join Queue</p>
+                    </button>
+                </div>
 
                 <div className="space-y-6">
                     {gym.courts && gym.courts.map((court) => (
