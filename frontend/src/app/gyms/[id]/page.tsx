@@ -8,6 +8,8 @@ import { useCallback, useEffect, useState } from "react";
 import { getNextTeam } from "@/app/http/courts";
 import { FaUserPlus } from "react-icons/fa";
 import { getPlayer } from "@/app/http/player";
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 
 export default function GetGym({
     params
@@ -25,7 +27,7 @@ export default function GetGym({
         const playerId = (await getPlayer(userId!)).id;
 
         const { courtNumber } = await joinQueueWithStrategy(gymId, playerId, strategy);
-        console.log(`Joined queue for court number: ${courtNumber}`);
+        toast(`Joined queue for court number: ${courtNumber}`);
     }, [params, strategy]);
 
     useEffect(() => {
@@ -46,6 +48,7 @@ export default function GetGym({
 
     return (
         <Container active="gyms">
+            <Toaster />
             <div className="p-6">
                 <h1 className="text-2xl font-bold mb-1">{gym.name}</h1>
                 <p className="text-gray-600 mb-4">{gym.address}</p>
