@@ -16,6 +16,12 @@ This system, built on the Palantir AIP and Foundry, maintains athlete profiles, 
 - React
 
 ### Future Development
+- [ ] API Security (e.g. JWT Auth, Cookies)
+- [ ] Queue Matching Algorithms (e.g. position-based matching)
+- [ ] Advanced Skill Metrics (e.g. stat tracking, highest level played)
+- [ ] WebSockets for Real-Time Updates on Court Queues, Occupancy, Teams
+- [ ] Test-Driven Development
+- [ ] Extend to all Sports and Community Events
 
 ### Architecture
 ![architecture](./.github/architecture.jpg)
